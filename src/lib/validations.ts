@@ -62,8 +62,16 @@ export const availabilitySchema = z.object({
 });
 
 export const reviewSchema = z.object({
-  meeting_id: z.string().uuid(),
-  mentor_id: z.string().uuid(),
+  booking_id: z.string().uuid(),
+  meeting_id: z.string().uuid().optional(),
+  mentor_id: z.string().uuid().optional(),
   rating: z.number().min(1).max(5),
   comment: z.string().max(2000).optional(),
 });
+
+// Aliases used by API routes
+export const meetingSchema = meetingCreateSchema;
+export const bookingSchema = bookingCreateSchema.extend({
+  slot_id: z.string().uuid(),
+});
+export const profileSchema = profileUpdateSchema;

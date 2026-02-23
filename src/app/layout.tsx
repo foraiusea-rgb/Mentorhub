@@ -3,6 +3,8 @@ import { Navbar } from '@/components/layout/Navbar';
 import { PWARegister } from '@/components/layout/PWARegister';
 import './globals.css';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'MentorHub — Find Your Perfect Mentor',
   description: 'Connect with expert mentors, schedule sessions, and accelerate your growth with AI-powered matching.',

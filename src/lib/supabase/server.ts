@@ -31,3 +31,6 @@ export function createServiceSupabase() {
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 }
+
+// Alias used by admin routes
+export const createServiceRoleClient = createServiceSupabase;

@@ -109,3 +109,7 @@ No markdown, no extra text.`;
     return '[]';
   }
 }
+
+// Aliases used by API routes
+export const getRecommendations = getRecommendedMentors;
+export const optimizeSlots = findOptimalSlots;

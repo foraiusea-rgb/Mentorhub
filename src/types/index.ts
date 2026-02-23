@@ -13,6 +13,7 @@ export interface Profile {
   role: UserRole;
   bio: string;
   headline: string;
+  expertise: string[];
   expertise_tags: string[];
   credentials: Credential[];
   interests: string[];
@@ -33,8 +34,9 @@ export interface Profile {
 
 export interface Credential {
   title: string;
-  issuer: string;
-  year: number;
+  institution: string;
+  issuer?: string;
+  year?: number;
   url?: string;
 }
 
@@ -85,19 +87,26 @@ export interface Booking {
   id: string;
   meeting_id: string;
   mentee_id: string | null;
+  mentor_id: string;
+  slot_id: string | null;
   guest_name: string | null;
   guest_email: string | null;
   status: BookingStatus;
   notes: string;
+  cancellation_reason?: string;
   created_at: string;
+  updated_at: string;
   meeting?: Meeting;
+  slot?: MeetingSlot;
   mentee?: Profile;
+  mentor?: Profile;
 }
 
 export interface Payment {
   id: string;
   booking_id: string;
   payer_id: string | null;
+  recipient_id: string;
   mentor_id: string;
   amount: number;
   currency: string;
@@ -105,6 +114,7 @@ export interface Payment {
   stripe_payment_intent_id: string | null;
   stripe_checkout_session_id: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface GuestRsvp {
@@ -132,4 +142,39 @@ export interface AIRecommendation {
   mentor: Profile;
   score: number;
   reasoning: string;
+}
+
+// Aliases used by pages
+export type Availability = AvailabilitySlot;
+export type MeetingSlot = {
+  id: string;
+  meeting_id: string;
+  start_time: string;
+  end_time: string;
+  spots_available: number;
+  spots_taken: number;
+  is_available: boolean;
+};
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string | null;
+  data: Record<string, any> | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface ShareLink {
+  id: string;
+  share_id: string;
+  mentor_id: string;
+  meeting_id: string | null;
+  title: string | null;
+  description: string | null;
+  is_active: boolean;
+  views: number;
+  created_at: string;
 }

@@ -9,30 +9,29 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.21",
+    "next": "14.2.15",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@supabase/supabase-js": "^2.47.12",
-    "@supabase/ssr": "^0.5.2",
-    "@stripe/stripe-js": "^4.11.0",
-    "stripe": "^17.5.0",
-    "zod": "^3.24.1",
-    "date-fns": "^4.1.0",
-    "lucide-react": "^0.468.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "@supabase/ssr": "^0.5.1",
+    "@stripe/stripe-js": "^2.4.0",
+    "stripe": "^14.14.0",
+    "zod": "^3.23.8",
+    "date-fns": "^3.6.0",
+    "lucide-react": "^0.263.1",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^2.6.0",
-    "nanoid": "^5.0.9",
-    "sonner": "^1.7.2"
+    "tailwind-merge": "^2.5.2",
+    "nanoid": "^5.0.7"
   },
   "devDependencies": {
-    "@types/node": "^22.10.5",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "typescript": "^5.7.3",
-    "tailwindcss": "^3.4.17",
-    "postcss": "^8.4.49",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.5.4",
+    "tailwindcss": "^3.4.10",
+    "postcss": "^8.4.41",
     "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "14.2.21"
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.15"
   }
 }

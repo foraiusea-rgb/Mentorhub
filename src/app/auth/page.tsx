@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Input, Card } from '@/components/ui';
 
-export default function AuthPage() {
+function AuthContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createClient();
@@ -114,5 +114,13 @@ export default function AuthPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[80vh] flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-brand-600 border-t-transparent rounded-full" /></div>}>
+      <AuthContent />
+    </Suspense>
   );
 }

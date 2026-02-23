@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia' as any,
+  apiVersion: '2023-10-16' as any,
   typescript: true,
 });
 
@@ -93,4 +93,9 @@ export async function createRefund(paymentIntentId: string, reason?: string) {
     reason: 'requested_by_customer',
     metadata: { refund_reason: reason || 'Customer requested' },
   });
+}
+
+// Convert dollar amount to Stripe cents
+export function getStripeAmount(amount: number): number {
+  return Math.round(amount * 100);
 }

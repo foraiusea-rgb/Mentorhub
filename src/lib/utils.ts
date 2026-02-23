@@ -9,7 +9,10 @@ export function formatPrice(amount: number, currency = 'USD') {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
 }
 
-export function formatDate(dateStr: string) {
+export function formatDate(dateStr: string, options?: Intl.DateTimeFormatOptions) {
+  if (options) {
+    return new Date(dateStr).toLocaleString('en-US', options);
+  }
   return new Date(dateStr).toLocaleDateString('en-US', {
     weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
   });
@@ -52,3 +55,16 @@ export const CURRENCY_OPTIONS = [
   { value: 'AUD', label: 'A$ AUD' },
   { value: 'CAD', label: 'C$ CAD' },
 ];
+
+export function getDayName(dayIndex: number) {
+  return DAYS_OF_WEEK[dayIndex] || '';
+}
+
+export function generateShareId() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 10; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}

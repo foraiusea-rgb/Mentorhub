@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Navbar } from '@/components/layout/Navbar';
+import { LayoutShell } from '@/components/layout/LayoutShell';
 import { PWARegister } from '@/components/layout/PWARegister';
 import './globals.css';
 
@@ -32,7 +32,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#005fd4',
+  themeColor: '#0a0a0b',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -42,11 +42,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="min-h-screen font-sans text-surface-900 bg-surface-50 antialiased">
-        <Navbar />
-        <main className="pt-16">
-          {children}
-        </main>
+      <body className="min-h-screen font-sans antialiased bg-[var(--cream)]">
+        <LayoutShell>{children}</LayoutShell>
         <PWARegister />
       </body>
     </html>

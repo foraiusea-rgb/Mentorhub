@@ -2,57 +2,128 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Satoshi:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @layer base {
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
   body {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    color: #212529;
-    background: #f8f9fa;
+    font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    color: #0a0a0b;
+    background: #fafaf8;
     line-height: 1.6;
   }
 }
 
-@layer components {
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
-           bg-brand-600 text-white font-medium text-sm
-           hover:bg-brand-700 active:bg-brand-800
-           transition-all duration-200 shadow-sm hover:shadow-md
-           disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
-           bg-white text-surface-800 font-medium text-sm border border-surface-200
-           hover:bg-surface-50 hover:border-surface-300 transition-all duration-200 shadow-sm
-           disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl
-           text-surface-600 font-medium text-sm hover:bg-surface-100 hover:text-surface-800
-           transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
-           bg-red-50 text-red-600 font-medium text-sm border border-red-200
-           hover:bg-red-100 transition-all duration-200;
-  }
-  .card { @apply bg-white rounded-2xl border border-surface-200 shadow-card; }
-  .input-field {
-    @apply w-full px-4 py-2.5 rounded-xl border border-surface-200 bg-white
-           text-surface-900 text-sm placeholder:text-surface-400
-           focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500
-           transition-all duration-200;
-  }
-  .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium; }
-  .badge-green { @apply badge bg-brand-100 text-brand-800; }
-  .badge-blue { @apply badge bg-blue-100 text-blue-800; }
-  .badge-amber { @apply badge bg-amber-100 text-amber-800; }
-  .badge-gray { @apply badge bg-surface-100 text-surface-700; }
+/* ─── Design Tokens ─── */
+:root {
+  --ink: #0a0a0b;
+  --ink-80: #2a2a2e;
+  --ink-60: #56565c;
+  --ink-40: #8a8a92;
+  --ink-20: #c4c4ca;
+  --ink-10: #e8e8ec;
+  --ink-05: #f4f4f6;
+  --cream: #fafaf8;
+  --white: #ffffff;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --emerald: #059669;
+  --emerald-soft: #d1fae5;
+  --violet: #7c3aed;
+  --violet-soft: #ede9fe;
+  --amber: #d97706;
+  --amber-soft: #fef3c7;
+  --rose: #e11d48;
+  --rose-soft: #ffe4e6;
 }
 
+/* ─── Animations ─── */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes pulseRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+.animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.2s ease-out forwards; }
+.animate-spin { animation: spin 1s linear infinite; }
+
+@layer components {
+  /* ─── Buttons ─── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[14px]
+           text-white font-semibold text-[15px]
+           active:scale-[0.98]
+           transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-0.5
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    background: var(--ink);
+  }
+  .btn-primary:hover { background: var(--ink-80); }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[14px]
+           bg-transparent font-semibold text-[15px]
+           transition-all duration-300
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    color: var(--ink-60);
+    border: 1.5px solid var(--ink-20);
+  }
+  .btn-secondary:hover { border-color: var(--ink-40); color: var(--ink); }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-[10px]
+           font-medium text-sm transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    color: var(--ink-60);
+  }
+  .btn-ghost:hover { background: var(--ink-05); color: var(--ink); }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-[14px]
+           bg-red-50 font-medium text-sm border border-red-200
+           hover:bg-red-100 transition-all duration-200;
+    color: var(--rose);
+  }
+
+  /* ─── Cards ─── */
+  .card {
+    @apply bg-white rounded-[20px] border shadow-sm;
+    border-color: var(--ink-10);
+  }
+
+  /* ─── Inputs ─── */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-[12px] border bg-white
+           text-sm transition-all duration-200;
+    color: var(--ink);
+    border-color: var(--ink-10);
+  }
+  .input-field::placeholder { color: var(--ink-40); }
+  .input-field:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: var(--accent);
+  }
+
+  /* ─── Badges ─── */
+  .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+  .badge-blue { @apply badge; background: var(--accent-soft); color: var(--accent); }
+  .badge-green { @apply badge; background: var(--emerald-soft); color: var(--emerald); }
+  .badge-violet { @apply badge; background: var(--violet-soft); color: var(--violet); }
+  .badge-amber { @apply badge; background: var(--amber-soft); color: var(--amber); }
+  .badge-gray { @apply badge; background: var(--ink-05); color: var(--ink-60); }
+}
+
+/* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--ink-20); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-40); }
+
+/* ─── Selection ─── */
+::selection { background: var(--accent-soft); color: var(--accent); }

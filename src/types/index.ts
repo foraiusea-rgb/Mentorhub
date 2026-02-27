@@ -13,7 +13,6 @@ export interface Profile {
   role: UserRole;
   bio: string;
   headline: string;
-  expertise: string[];
   expertise_tags: string[];
   credentials: Credential[];
   interests: string[];
@@ -28,6 +27,7 @@ export interface Profile {
   stripe_customer_id: string | null;
   is_verified: boolean;
   is_public: boolean;
+  onboarding_completed: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -47,6 +47,7 @@ export interface AvailabilitySlot {
   start_time: string;
   end_time: string;
   is_active: boolean;
+  created_at?: string;
 }
 
 export interface Meeting {
@@ -59,8 +60,8 @@ export interface Meeting {
   meeting_type: MeetingType;
   meeting_mode: MeetingMode;
   status: MeetingStatus;
-  start_time: string;
-  end_time: string;
+  start_time: string | null;
+  end_time: string | null;
   duration_minutes: number;
   location_name: string | null;
   location_address: string | null;
@@ -70,11 +71,14 @@ export interface Meeting {
   price: number;
   currency: string;
   is_free: boolean;
+  is_active: boolean;
   tags: string[];
   cover_image: string | null;
   created_at: string;
   updated_at: string;
+  // Joined relations
   mentor?: Profile;
+  slots?: MeetingSlot[];
 }
 
 export interface AgendaItem {
@@ -83,12 +87,23 @@ export interface AgendaItem {
   description?: string;
 }
 
+export interface MeetingSlot {
+  id: string;
+  meeting_id: string;
+  start_time: string;
+  end_time: string;
+  spots_available: number;
+  spots_taken: number;
+  is_available: boolean;
+  created_at?: string;
+}
+
 export interface Booking {
   id: string;
   meeting_id: string;
+  slot_id: string | null;
   mentee_id: string | null;
   mentor_id: string;
-  slot_id: string | null;
   guest_name: string | null;
   guest_email: string | null;
   status: BookingStatus;
@@ -96,6 +111,7 @@ export interface Booking {
   cancellation_reason?: string;
   created_at: string;
   updated_at: string;
+  // Joined relations
   meeting?: Meeting;
   slot?: MeetingSlot;
   mentee?: Profile;
@@ -106,15 +122,27 @@ export interface Payment {
   id: string;
   booking_id: string;
   payer_id: string | null;
-  recipient_id: string;
   mentor_id: string;
   amount: number;
   currency: string;
   status: PaymentStatus;
   stripe_payment_intent_id: string | null;
   stripe_checkout_session_id: string | null;
+  refund_reason?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface Review {
+  id: string;
+  meeting_id: string;
+  reviewer_id: string;
+  mentor_id: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+  // Joined
+  reviewer?: Partial<Profile>;
 }
 
 export interface GuestRsvp {
@@ -127,44 +155,10 @@ export interface GuestRsvp {
   created_at: string;
 }
 
-export interface Review {
-  id: string;
-  meeting_id: string;
-  reviewer_id: string;
-  mentor_id: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  reviewer?: Profile;
-}
-
 export interface AIRecommendation {
   mentor: Profile;
   score: number;
   reasoning: string;
-}
-
-// Aliases used by pages
-export type Availability = AvailabilitySlot;
-export type MeetingSlot = {
-  id: string;
-  meeting_id: string;
-  start_time: string;
-  end_time: string;
-  spots_available: number;
-  spots_taken: number;
-  is_available: boolean;
-};
-
-export interface Notification {
-  id: string;
-  user_id: string;
-  type: string;
-  title: string;
-  message: string | null;
-  data: Record<string, any> | null;
-  is_read: boolean;
-  created_at: string;
 }
 
 export interface ShareLink {
@@ -178,3 +172,17 @@ export interface ShareLink {
   views: number;
   created_at: string;
 }
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string | null;
+  data: Record<string, any> | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+// Aliases for backwards compatibility
+export type Availability = AvailabilitySlot;

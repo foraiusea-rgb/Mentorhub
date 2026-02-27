@@ -12,7 +12,7 @@ function ProfileEditor({ profile, onSave }: { profile: Profile; onSave: () => vo
   const supabase = createClient();
   const [form, setForm] = useState({
     full_name: profile.full_name, bio: profile.bio || '', headline: profile.headline || '',
-    role: profile.role, expertise: profile.expertise || [], hourly_rate: profile.hourly_rate || 0,
+    role: profile.role, expertise_tags: profile.expertise_tags || [], hourly_rate: profile.hourly_rate || 0,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
   const [credTitle, setCredTitle] = useState('');
@@ -57,19 +57,19 @@ function ProfileEditor({ profile, onSave }: { profile: Profile; onSave: () => vo
       <div className="mt-4">
         <label className="block text-sm font-medium text-surface-700 mb-2">Expertise</label>
         <div className="flex flex-wrap gap-2 mb-2">
-          {form.expertise.map((exp) => (
-            <Badge key={exp} variant="brand" className="cursor-pointer" onClick={() => setForm({ ...form, expertise: form.expertise.filter((e) => e !== exp) })}>
+          {form.expertise_tags.map((exp) => (
+            <Badge key={exp} variant="brand" className="cursor-pointer" onClick={() => setForm({ ...form, expertise_tags: form.expertise_tags.filter((e) => e !== exp) })}>
               {exp} ×
             </Badge>
           ))}
         </div>
         <div className="flex gap-2">
           <Input placeholder="Add expertise..." value={expertiseInput} onChange={(e) => setExpertiseInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && expertiseInput) { e.preventDefault(); setForm({ ...form, expertise: [...form.expertise, expertiseInput] }); setExpertiseInput(''); } }} />
+            onKeyDown={(e) => { if (e.key === 'Enter' && expertiseInput) { e.preventDefault(); setForm({ ...form, expertise_tags: [...form.expertise_tags, expertiseInput] }); setExpertiseInput(''); } }} />
         </div>
         <div className="flex flex-wrap gap-1 mt-2">
-          {EXPERTISE_OPTIONS.filter((e) => !form.expertise.includes(e)).slice(0, 8).map((exp) => (
-            <button key={exp} onClick={() => setForm({ ...form, expertise: [...form.expertise, exp] })}
+          {EXPERTISE_OPTIONS.filter((e) => !form.expertise_tags.includes(e)).slice(0, 8).map((exp) => (
+            <button key={exp} onClick={() => setForm({ ...form, expertise_tags: [...form.expertise_tags, exp] })}
               className="text-xs px-2 py-1 rounded-lg bg-surface-100 text-surface-600 hover:bg-brand-50 hover:text-brand-700 transition-colors">{exp}</button>
           ))}
         </div>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
     const fetch = async () => {
       const [meetingsRes, bookingsRes] = await Promise.all([
         supabase.from('meetings').select('*, slots:meeting_slots(*)').eq('mentor_id', user.id).order('created_at', { ascending: false }),
-        supabase.from('bookings').select('*, meeting:meetings(*), slot:meeting_slots(*), mentor:profiles!bookings_mentor_id_fkey(*)')
+        supabase.from('bookings').select('*, meeting:meetings(*), slot:meeting_slots(*), mentor:profiles!bookings_mentor_id_fkey(*), mentee:profiles!bookings_mentee_id_fkey(*)')
           .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`).order('created_at', { ascending: false }).limit(20),
       ]);
       if (meetingsRes.data) setMeetings(meetingsRes.data as Meeting[]);
@@ -128,7 +128,14 @@ export default function DashboardPage() {
   };
 
   if (authLoading) return <div className="max-w-6xl mx-auto px-4 py-12"><Skeleton className="h-96 w-full" /></div>;
-  if (!profile) return null;
+  if (!user) return null;
+  if (!profile) return (
+    <div className="max-w-6xl mx-auto px-4 py-12 text-center">
+      <div className="bg-surface-100 rounded-xl h-64 flex items-center justify-center animate-pulse">
+        <p className="text-surface-500">Loading your profile...</p>
+      </div>
+    </div>
+  );
 
   const isMentor = profile.role === 'mentor' || profile.role === 'both';
 
@@ -220,12 +227,12 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-semibold text-surface-900">{m.title}</h3>
                       <Badge variant={m.is_free ? 'success' : 'brand'}>{m.is_free ? 'Free' : `$${m.price}`}</Badge>
-                      <Badge variant="default" className="capitalize">{m.format.replace('_', ' ')}</Badge>
+                      <Badge variant="default" className="capitalize">{m.meeting_type.replace('_', ' ')}</Badge>
                     </div>
                     <p className="text-sm text-surface-500 line-clamp-1">{m.description}</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-surface-400">
                       <span>{m.duration_minutes} min</span>
-                      <span className="capitalize">{m.meeting_type}</span>
+                      <span className="capitalize">{m.meeting_mode}</span>
                       <span>{m.slots?.length || 0} slots</span>
                     </div>
                   </div>

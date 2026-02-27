@@ -17,7 +17,7 @@ export default function PaymentsPage() {
     if (!user) return;
     const fetch = async () => {
       const { data } = await supabase.from('payments').select('*')
-        .or(`payer_id.eq.${user.id},recipient_id.eq.${user.id}`)
+        .or(`payer_id.eq.${user.id},mentor_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
       if (data) setPayments(data as Payment[]);
       setLoading(false);
@@ -25,7 +25,7 @@ export default function PaymentsPage() {
     fetch();
   }, [user, supabase]);
 
-  const totalEarned = payments.filter((p) => p.recipient_id === user?.id && p.status === 'succeeded').reduce((sum, p) => sum + p.amount, 0);
+  const totalEarned = payments.filter((p) => p.mentor_id === user?.id && p.status === 'succeeded').reduce((sum, p) => sum + p.amount, 0);
   const totalSpent = payments.filter((p) => p.payer_id === user?.id && p.status === 'succeeded').reduce((sum, p) => sum + p.amount, 0);
 
   if (loading) return <div className="max-w-4xl mx-auto px-4 py-12"><Skeleton className="h-96" /></div>;
@@ -61,8 +61,8 @@ export default function PaymentsPage() {
                   <p className="text-xs text-surface-500">{formatDate(p.created_at)}</p>
                 </div>
                 <div className="text-right">
-                  <p className={`font-semibold ${p.recipient_id === user?.id ? 'text-accent-emerald' : 'text-surface-900'}`}>
-                    {p.recipient_id === user?.id ? '+' : '-'}${p.amount.toFixed(2)}
+                  <p className={`font-semibold ${p.mentor_id === user?.id ? 'text-accent-emerald' : 'text-surface-900'}`}>
+                    {p.mentor_id === user?.id ? '+' : '-'}${p.amount.toFixed(2)}
                   </p>
                   <Badge variant={p.status === 'succeeded' ? 'success' : p.status === 'failed' ? 'danger' : 'warning'} className="capitalize text-xs">{p.status}</Badge>
                 </div>

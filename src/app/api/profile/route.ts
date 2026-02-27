@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     .limit(limit);
 
   if (expertise) {
-    query = query.contains('expertise', [expertise]);
+    query = query.contains('expertise_tags', [expertise]);
   }
 
   const { data, error } = await query;

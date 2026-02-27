@@ -27,7 +27,7 @@ export default function CalendarPage() {
     if (!user) return;
     const fetch = async () => {
       const [availRes, bookingsRes] = await Promise.all([
-        supabase.from('availability').select('*').eq('mentor_id', user.id).order('day_of_week'),
+        supabase.from('availability_slots').select('*').eq('mentor_id', user.id).order('day_of_week'),
         supabase.from('bookings').select('*, meeting:meetings(*), slot:meeting_slots(*)')
           .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`)
           .eq('status', 'confirmed'),
@@ -41,14 +41,14 @@ export default function CalendarPage() {
 
   const addAvailability = async () => {
     if (!user) return;
-    const { data, error } = await supabase.from('availability').insert({
+    const { data, error } = await supabase.from('availability_slots').insert({
       mentor_id: user.id, day_of_week: newDay, start_time: newStart, end_time: newEnd,
     }).select().single();
     if (data) setAvailability([...availability, data as Availability]);
   };
 
   const removeAvailability = async (id: string) => {
-    await supabase.from('availability').delete().eq('id', id);
+    await supabase.from('availability_slots').delete().eq('id', id);
     setAvailability(availability.filter((a) => a.id !== id));
   };
 

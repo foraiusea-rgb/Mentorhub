@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   if (action === 'stats') {
     const [profiles, meetings, bookings, payments, reviews] = await Promise.all([
       supabase.from('profiles').select('id, role, created_at, is_verified', { count: 'exact' }),
-      supabase.from('meetings').select('id, is_free, price, format, created_at', { count: 'exact' }),
+      supabase.from('meetings').select('id, is_free, price, meeting_type, created_at', { count: 'exact' }),
       supabase.from('bookings').select('id, status, created_at', { count: 'exact' }),
       supabase.from('payments').select('id, amount, status, created_at', { count: 'exact' }),
       supabase.from('reviews').select('id, rating, created_at', { count: 'exact' }),

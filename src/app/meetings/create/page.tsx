@@ -13,7 +13,7 @@ export default function CreateMeetingPage() {
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    title: '', description: '', meeting_type: 'online' as const, format: 'one_on_one' as const,
+    title: '', description: '', meeting_mode: 'online' as const, meeting_type: 'one_on_one' as const,
     location: '', meeting_link: '', duration_minutes: 60, max_participants: 1,
     price: 0, currency: 'USD', is_free: true, tags: [] as string[],
   });
@@ -43,7 +43,7 @@ export default function CreateMeetingPage() {
         const end = new Date(start.getTime() + form.duration_minutes * 60000);
         return {
           meeting_id: meeting.id, start_time: start.toISOString(), end_time: end.toISOString(),
-          spots_available: form.format === 'group' ? form.max_participants : 1,
+          spots_available: form.meeting_type === 'group' ? form.max_participants : 1,
         };
       });
       await supabase.from('meeting_slots').insert(slotRecords);
@@ -64,15 +64,15 @@ export default function CreateMeetingPage() {
           <Textarea label="Description" rows={4} placeholder="What will mentees learn?" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           <div className="grid grid-cols-2 gap-4">
             <Select label="Type" options={[{ value: 'online', label: '🌐 Online' }, { value: 'offline', label: '📍 Offline' }, { value: 'hybrid', label: '🔄 Hybrid' }]}
-              value={form.meeting_type} onChange={(e) => setForm({ ...form, meeting_type: e.target.value as 'online' | 'offline' | 'hybrid' })} />
+              value={form.meeting_mode} onChange={(e) => setForm({ ...form, meeting_mode: e.target.value as 'online' | 'offline' | 'hybrid' })} />
             <Select label="Format" options={[{ value: 'one_on_one', label: '👤 1-on-1' }, { value: 'group', label: '👥 Group' }]}
-              value={form.format} onChange={(e) => setForm({ ...form, format: e.target.value as 'one_on_one' | 'group', max_participants: e.target.value === 'group' ? 10 : 1 })} />
+              value={form.meeting_type} onChange={(e) => setForm({ ...form, meeting_type: e.target.value as 'one_on_one' | 'group', max_participants: e.target.value === 'group' ? 10 : 1 })} />
           </div>
-          {form.meeting_type !== 'offline' && <Input label="Meeting Link" placeholder="https://zoom.us/j/..." value={form.meeting_link} onChange={(e) => setForm({ ...form, meeting_link: e.target.value })} />}
-          {form.meeting_type !== 'online' && <Input label="Location" placeholder="123 Main St, City" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />}
+          {form.meeting_mode !== 'offline' && <Input label="Meeting Link" placeholder="https://zoom.us/j/..." value={form.meeting_link} onChange={(e) => setForm({ ...form, meeting_link: e.target.value })} />}
+          {form.meeting_mode !== 'online' && <Input label="Location" placeholder="123 Main St, City" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />}
           <div className="grid grid-cols-2 gap-4">
             <Input label="Duration (min)" type="number" min={15} max={480} step={15} value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: Number(e.target.value) })} />
-            {form.format === 'group' && <Input label="Max Participants" type="number" min={2} max={100} value={form.max_participants} onChange={(e) => setForm({ ...form, max_participants: Number(e.target.value) })} />}
+            {form.meeting_type === 'group' && <Input label="Max Participants" type="number" min={2} max={100} value={form.max_participants} onChange={(e) => setForm({ ...form, max_participants: Number(e.target.value) })} />}
           </div>
         </Card>
 

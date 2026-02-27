@@ -39,9 +39,9 @@ export default function AIRecommendationsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          mentee: { expertise: profile.expertise, bio: profile.bio },
+          mentee: { expertise_tags: profile.expertise_tags, bio: profile.bio },
           mentors: allMentors.map((m) => ({
-            id: m.id, full_name: m.full_name, expertise: m.expertise,
+            id: m.id, full_name: m.full_name, expertise: m.expertise_tags,
             bio: m.bio, rating: m.rating, hourly_rate: m.hourly_rate,
           })),
         }),
@@ -81,8 +81,8 @@ export default function AIRecommendationsPage() {
             <div>
               <h3 className="font-semibold text-surface-900">Your Profile</h3>
               <div className="flex flex-wrap gap-1 mt-2">
-                {profile.expertise.length > 0 ? (
-                  profile.expertise.map((e) => <Badge key={e} variant="brand" className="text-xs">{e}</Badge>)
+                {profile.expertise_tags.length > 0 ? (
+                  profile.expertise_tags.map((e) => <Badge key={e} variant="brand" className="text-xs">{e}</Badge>)
                 ) : (
                   <span className="text-sm text-surface-400">Add expertise to your profile for better matches</span>
                 )}

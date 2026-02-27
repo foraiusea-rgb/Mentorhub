@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       // Create payment record
       if (booking) {
         await supabase.from('payments').insert({
-          booking_id: booking, payer_id: mentee_id, recipient_id: mentor_id,
+          booking_id: booking, payer_id: mentee_id, mentor_id: mentor_id,
           amount: (session.amount_total || 0) / 100, currency: session.currency?.toUpperCase() || 'USD',
           stripe_checkout_session_id: session.id,
           stripe_payment_intent_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,

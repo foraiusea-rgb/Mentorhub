@@ -20,7 +20,7 @@ export default function ProfilePage() {
       const [profileRes, meetingsRes, reviewsRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', id).single(),
         supabase.from('meetings').select('*, slots:meeting_slots(*)').eq('mentor_id', id).eq('is_active', true),
-        supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name, avatar_url)').eq('reviewee_id', id).order('created_at', { ascending: false }),
+        supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name, avatar_url)').eq('mentor_id', id).order('created_at', { ascending: false }),
       ]);
       if (profileRes.data) setProfile(profileRes.data as Profile);
       if (meetingsRes.data) setMeetings(meetingsRes.data as Meeting[]);
@@ -52,7 +52,7 @@ export default function ProfilePage() {
             </div>
             <p className="text-surface-600 leading-relaxed mb-4">{profile.bio}</p>
             <div className="flex flex-wrap gap-2 mb-4">
-              {profile.expertise.map((e) => <Badge key={e} variant="brand">{e}</Badge>)}
+              {profile.expertise_tags.map((e) => <Badge key={e} variant="brand">{e}</Badge>)}
             </div>
             {profile.credentials && profile.credentials.length > 0 && (
               <div className="space-y-1">
@@ -83,8 +83,8 @@ export default function ProfilePage() {
                   <p className="text-sm text-surface-500 line-clamp-2 mb-3">{m.description}</p>
                   <div className="flex items-center gap-3 text-xs text-surface-400">
                     <span>{m.duration_minutes} min</span>
-                    <span className="capitalize">{m.format.replace('_', ' ')}</span>
-                    <span className="capitalize">{m.meeting_type}</span>
+                    <span className="capitalize">{m.meeting_type.replace('_', ' ')}</span>
+                    <span className="capitalize">{m.meeting_mode}</span>
                   </div>
                 </Card>
               </Link>

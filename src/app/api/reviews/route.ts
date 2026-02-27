@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Determine reviewee (the other person)
-  const reviewee_id = user.id === booking.mentee_id ? booking.mentor_id : booking.mentee_id;
+  const mentor_id = user.id === booking.mentee_id ? booking.mentor_id : booking.mentee_id;
 
   // Check for duplicate review
   const { data: existing } = await supabase
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabase.from('reviews').insert({
     booking_id: result.data.booking_id,
     reviewer_id: user.id,
-    reviewee_id,
+    mentor_id,
     rating: result.data.rating,
     comment: result.data.comment || null,
   }).select().single();
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('reviews')
     .select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name, avatar_url)')
-    .eq('reviewee_id', mentorId)
+    .eq('mentor_id', mentorId)
     .order('created_at', { ascending: false })
     .limit(20);
 

@@ -35,8 +35,8 @@ export default function ExplorePage() {
     return mentors.filter((m) => {
       if (search && !m.full_name.toLowerCase().includes(search.toLowerCase()) &&
           !m.headline?.toLowerCase().includes(search.toLowerCase()) &&
-          !m.expertise.some((e) => e.toLowerCase().includes(search.toLowerCase()))) return false;
-      if (expertiseFilter && !m.expertise.includes(expertiseFilter)) return false;
+          !m.expertise_tags.some((e) => e.toLowerCase().includes(search.toLowerCase()))) return false;
+      if (expertiseFilter && !m.expertise_tags.includes(expertiseFilter)) return false;
       return true;
     });
   }, [mentors, search, expertiseFilter]);
@@ -47,7 +47,7 @@ export default function ExplorePage() {
           !m.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()))) return false;
       if (priceFilter === 'free' && !m.is_free) return false;
       if (priceFilter === 'paid' && m.is_free) return false;
-      if (formatFilter !== 'all' && m.format !== formatFilter) return false;
+      if (formatFilter !== 'all' && m.meeting_type !== formatFilter) return false;
       if (expertiseFilter && !m.tags.includes(expertiseFilter)) return false;
       return true;
     });
@@ -143,11 +143,11 @@ export default function ExplorePage() {
                     <span className="text-xs text-surface-400">• {mentor.total_sessions} sessions</span>
                   </div>
                   <div className="flex flex-wrap gap-1 mb-3">
-                    {mentor.expertise.slice(0, 3).map((e) => (
+                    {mentor.expertise_tags.slice(0, 3).map((e) => (
                       <Badge key={e} variant="brand" className="text-xs">{e}</Badge>
                     ))}
-                    {mentor.expertise.length > 3 && (
-                      <Badge className="text-xs">+{mentor.expertise.length - 3}</Badge>
+                    {mentor.expertise_tags.length > 3 && (
+                      <Badge className="text-xs">+{mentor.expertise_tags.length - 3}</Badge>
                     )}
                   </div>
                   {mentor.hourly_rate && (
@@ -174,8 +174,8 @@ export default function ExplorePage() {
                     <Badge variant={meeting.is_free ? 'success' : 'brand'}>
                       {meeting.is_free ? 'Free' : `$${meeting.price}`}
                     </Badge>
-                    <Badge variant="default" className="capitalize text-xs">{meeting.format.replace('_', ' ')}</Badge>
-                    <Badge variant="default" className="capitalize text-xs">{meeting.meeting_type}</Badge>
+                    <Badge variant="default" className="capitalize text-xs">{meeting.meeting_type.replace('_', ' ')}</Badge>
+                    <Badge variant="default" className="capitalize text-xs">{meeting.meeting_mode}</Badge>
                   </div>
                   <h3 className="font-semibold text-surface-900 mb-1 line-clamp-1">{meeting.title}</h3>
                   <p className="text-sm text-surface-500 line-clamp-2 mb-3">{meeting.description}</p>

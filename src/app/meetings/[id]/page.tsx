@@ -36,7 +36,7 @@ export default function MeetingDetailPage() {
       const [mentorRes, slotsRes, reviewsRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', m.mentor_id).single(),
         supabase.from('meeting_slots').select('*').eq('meeting_id', id).eq('is_available', true).gte('start_time', new Date().toISOString()).order('start_time'),
-        supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name, avatar_url)').eq('reviewee_id', m.mentor_id).order('created_at', { ascending: false }).limit(10),
+        supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name, avatar_url)').eq('mentor_id', m.mentor_id).order('created_at', { ascending: false }).limit(10),
       ]);
       if (mentorRes.data) setMentor(mentorRes.data as Profile);
       if (slotsRes.data) setSlots(slotsRes.data as MeetingSlot[]);
@@ -84,8 +84,8 @@ export default function MeetingDetailPage() {
           <div>
             <div className="flex flex-wrap gap-2 mb-3">
               <Badge variant={meeting.is_free ? 'success' : 'brand'}>{meeting.is_free ? 'Free' : formatPrice2(meeting.price, meeting.currency)}</Badge>
-              <Badge variant="default" className="capitalize">{meeting.format.replace('_', ' ')}</Badge>
-              <Badge variant="default" className="capitalize">{meeting.meeting_type}</Badge>
+              <Badge variant="default" className="capitalize">{meeting.meeting_type.replace('_', ' ')}</Badge>
+              <Badge variant="default" className="capitalize">{meeting.meeting_mode}</Badge>
               <Badge variant="default">{meeting.duration_minutes} min</Badge>
             </div>
             <h1 className="font-display text-3xl font-bold text-surface-900 mb-3">{meeting.title}</h1>
@@ -128,7 +128,7 @@ export default function MeetingDetailPage() {
                     <span className="text-xs text-surface-500">({mentor.total_reviews} reviews)</span>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-3">
-                    {mentor.expertise.slice(0, 5).map((e) => <Badge key={e} variant="brand" className="text-xs">{e}</Badge>)}
+                    {mentor.expertise_tags.slice(0, 5).map((e) => <Badge key={e} variant="brand" className="text-xs">{e}</Badge>)}
                   </div>
                   {mentor.credentials && mentor.credentials.length > 0 && (
                     <div className="mt-3 space-y-1">

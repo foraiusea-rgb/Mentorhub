@@ -138,13 +138,14 @@ Select.displayName = 'Select';
 // ---- BADGE ----
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'premium';
+  variant?: 'default' | 'brand' | 'success' | 'warning' | 'danger' | 'info' | 'premium';
   className?: string;
 }
 
 export function Badge({ children, variant = 'default', className }: BadgeProps) {
   const variants = {
     default: 'bg-surface-100 text-surface-700',
+    brand: 'bg-brand-50 text-brand-700 border-brand-200',
     success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     warning: 'bg-amber-50 text-amber-700 border-amber-200',
     danger: 'bg-red-50 text-red-700 border-red-200',

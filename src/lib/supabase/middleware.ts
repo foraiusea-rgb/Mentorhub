@@ -30,7 +30,7 @@ export async function updateSession(request: NextRequest) {
 
   // Protect dashboard routes
   if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    return NextResponse.redirect(new URL('/auth', request.url));
   }
 
   // Redirect logged-in users away from auth pages

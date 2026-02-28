@@ -22,17 +22,29 @@ function AuthContent() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { setError(error.message); setLoading(false); }
-    else {
-      // Check onboarding status
-      const { data: profile } = await supabase.from('profiles').select('onboarding_completed').eq('id', (await supabase.auth.getUser()).data.user?.id).single();
-      if (profile && !profile.onboarding_completed) {
-        router.push('/onboarding');
-      } else {
-        router.push(searchParams.get('redirect') || '/dashboard');
-      }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
     }
+    // Check onboarding status
+    try {
+      const userId = data.user?.id;
+      if (userId) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', userId)
+          .single();
+        if (profile && !profile.onboarding_completed) {
+          router.push('/onboarding');
+          return;
+        }
+      }
+    } catch {}
+    router.push(searchParams.get('redirect') || '/dashboard');
+  };
   };
 
   const handleSignup = async (e: React.FormEvent) => {

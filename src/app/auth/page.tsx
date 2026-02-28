@@ -22,40 +22,40 @@ function AuthContent() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError(error.message);
       setLoading(false);
       return;
     }
-    // Check onboarding status
-    try {
-      const userId = data.user?.id;
-      if (userId) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('onboarding_completed')
-          .eq('id', userId)
-          .single();
-        if (profile && !profile.onboarding_completed) {
-          router.push('/onboarding');
-          return;
-        }
+    // Fetch profile to check onboarding
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase.from('profiles').select('onboarding_completed').eq('id', user.id).single();
+      if (profile && !profile.onboarding_completed) {
+        router.push('/onboarding');
+        return;
       }
-    } catch {}
-    router.push(searchParams.get('redirect') || '/dashboard');
+    }
+    router.push('/dashboard');
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email, password,
       options: { data: { full_name: fullName, role }, emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
-    if (error) { setError(error.message); }
-    else { setMessage('Check your email for a confirmation link!'); }
+    if (error) { setError(error.message); setLoading(false); return; }
+    // If user is already confirmed (email confirm disabled), redirect
+    if (data.user && data.session) {
+      router.push('/onboarding');
+      return;
+    }
+    // Otherwise show email confirmation message
+    setMessage('Check your email for a confirmation link!');
     setLoading(false);
   };
 

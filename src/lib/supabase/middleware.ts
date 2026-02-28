@@ -26,23 +26,8 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // This refreshes the session token if needed
-  const { data: { user } } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
-
-  // Protected routes — require login
-  const protectedPaths = ['/dashboard', '/calendar', '/payments', '/meetings/create', '/ai', '/admin', '/onboarding'];
-  const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
-
-  if (isProtected && !user) {
-    return NextResponse.redirect(new URL('/auth', request.url));
-  }
-
-  // Redirect logged-in users away from /auth (exact) and /auth/* (except callback)
-  if (user && (pathname === '/auth' || (pathname.startsWith('/auth/') && !pathname.includes('callback')))) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
+  // Refresh session token
+  await supabase.auth.getUser();
 
   return response;
 }

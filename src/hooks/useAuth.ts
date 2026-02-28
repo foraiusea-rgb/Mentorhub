@@ -9,33 +9,53 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  // createClient() is now a singleton, so this is stable
   const supabase = useMemo(() => createClient(), []);
 
   const fetchProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    setProfile(data as Profile | null);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (error) {
+        console.error('Profile fetch error:', error.message);
+        setProfile(null);
+      } else {
+        setProfile(data as Profile);
+      }
+    } catch (e) {
+      console.error('Profile fetch exception:', e);
+      setProfile(null);
+    }
   }, [supabase]);
 
   useEffect(() => {
+    let mounted = true;
+
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) await fetchProfile(user.id);
-      setLoading(false);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!mounted) return;
+        setUser(user);
+        if (user) {
+          await fetchProfile(user.id);
+        }
+      } catch (e) {
+        console.error('getUser error:', e);
+      }
+      if (mounted) setLoading(false);
     };
 
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
+        if (!mounted) return;
+        const sessionUser = session?.user ?? null;
+        setUser(sessionUser);
+        if (sessionUser) {
+          await fetchProfile(sessionUser.id);
         } else {
           setProfile(null);
         }
@@ -43,14 +63,21 @@ export function useAuth() {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [supabase, fetchProfile]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
-  };
+  }, [supabase]);
 
-  return { user, profile, loading, signOut, refreshProfile: () => user && fetchProfile(user.id) };
+  const refreshProfile = useCallback(() => {
+    if (user) return fetchProfile(user.id);
+  }, [user, fetchProfile]);
+
+  return { user, profile, loading, signOut, refreshProfile };
 }

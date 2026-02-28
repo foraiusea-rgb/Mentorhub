@@ -45,7 +45,6 @@ function AuthContent() {
     } catch {}
     router.push(searchParams.get('redirect') || '/dashboard');
   };
-  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();

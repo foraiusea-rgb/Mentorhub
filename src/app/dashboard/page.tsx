@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { useRequireOnboarding } from '@/hooks/useRequireOnboarding';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Card, Badge, Avatar, StarRating, EmptyState, Skeleton, Input, Textarea, Toggle } from '@/components/ui';
 import { formatDate, EXPERTISE_OPTIONS, generateShareId } from '@/lib/utils';
@@ -97,7 +97,7 @@ function ProfileEditor({ profile, onSave }: { profile: Profile; onSave: () => vo
 }
 
 export default function DashboardPage() {
-  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
+  const { user, profile, loading: authLoading, refreshProfile } = useRequireOnboarding();
   const router = useRouter();
   const supabase = createClient();
   const [meetings, setMeetings] = useState<Meeting[]>([]);

@@ -48,9 +48,27 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/auth');
+      return;
     }
     if (profile && profile.onboarding_completed) {
       router.push('/dashboard');
+      return;
+    }
+    // If user exists but profile hasn't loaded, try fetching it directly
+    if (user && !profile && !authLoading) {
+      const fetchDirectly = async () => {
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        if (data) {
+          // Profile exists — refreshProfile will pick it up
+          refreshProfile();
+        }
+      };
+      const timer = setTimeout(fetchDirectly, 1500);
+      return () => clearTimeout(timer);
     }
     if (profile) {
       setForm((prev) => ({
@@ -64,7 +82,7 @@ export default function OnboardingPage() {
         hourly_rate: profile.hourly_rate || prev.hourly_rate,
       }));
     }
-  }, [authLoading, user, profile, router]);
+  }, [authLoading, user, profile, router, supabase, refreshProfile]);
 
   const addSlot = () => {
     if (newSlotStart >= newSlotEnd) return;
@@ -123,12 +141,28 @@ export default function OnboardingPage() {
     }
   };
 
-  if (authLoading || !profile) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--cream)]">
         <div className="animate-spin h-8 w-8 border-[3px] border-[var(--ink)] border-t-transparent rounded-full" />
       </div>
     );
+  }
+
+  // Profile hasn't loaded yet — could be a timing issue, try refreshing
+  if (!profile && user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--cream)]">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-[3px] border-[var(--ink)] border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-sm text-[var(--ink-40)]">Setting up your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !profile) {
+    return null;
   }
 
   const inputClass = "w-full px-4 py-3 rounded-[12px] border border-[var(--ink-10)] bg-white text-[var(--ink)] text-sm placeholder:text-[var(--ink-40)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/20 focus:border-[var(--accent)] transition-all";

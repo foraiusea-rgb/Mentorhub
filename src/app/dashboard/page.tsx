@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Card, Badge, Avatar, StarRating, EmptyState, Skeleton, Input, Textarea, Toggle } from '@/components/ui';
@@ -97,11 +98,19 @@ function ProfileEditor({ profile, onSave }: { profile: Profile; onSave: () => vo
 
 export default function DashboardPage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
+  const router = useRouter();
   const supabase = createClient();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'meetings' | 'bookings' | 'profile'>('overview');
   const [loading, setLoading] = useState(true);
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (!authLoading && profile && !profile.onboarding_completed) {
+      router.push('/onboarding');
+    }
+  }, [authLoading, profile, router]);
 
   useEffect(() => {
     if (!user) return;
@@ -136,6 +145,12 @@ export default function DashboardPage() {
       </div>
     </div>
   );
+
+  // Redirect to onboarding if not completed
+  if (!profile.onboarding_completed) {
+    router.push('/onboarding');
+    return null;
+  }
 
   const isMentor = profile.role === 'mentor' || profile.role === 'both';
 

@@ -24,7 +24,15 @@ function AuthContent() {
     setError('');
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { setError(error.message); setLoading(false); }
-    else { router.push(searchParams.get('redirect') || '/dashboard'); }
+    else {
+      // Check onboarding status
+      const { data: profile } = await supabase.from('profiles').select('onboarding_completed').eq('id', (await supabase.auth.getUser()).data.user?.id).single();
+      if (profile && !profile.onboarding_completed) {
+        router.push('/onboarding');
+      } else {
+        router.push(searchParams.get('redirect') || '/dashboard');
+      }
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {

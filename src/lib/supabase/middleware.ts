@@ -28,16 +28,32 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protected routes that require auth
-  const protectedPaths = ['/dashboard', '/calendar', '/payments', '/meetings/create', '/ai', '/admin'];
-  const isProtected = protectedPaths.some((p) => request.nextUrl.pathname.startsWith(p));
+  const pathname = request.nextUrl.pathname;
 
+  // Routes that require auth
+  const protectedPaths = ['/dashboard', '/calendar', '/payments', '/meetings/create', '/ai', '/admin', '/onboarding'];
+  const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
+
+  // Not logged in → redirect to auth
   if (isProtected && !user) {
     return NextResponse.redirect(new URL('/auth', request.url));
   }
 
+  // Logged in → check onboarding for protected pages (except /onboarding itself)
+  if (user && isProtected && !pathname.startsWith('/onboarding')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', user.id)
+      .single();
+
+    if (profile && !profile.onboarding_completed) {
+      return NextResponse.redirect(new URL('/onboarding', request.url));
+    }
+  }
+
   // Redirect logged-in users away from auth pages
-  if (request.nextUrl.pathname.startsWith('/auth/') && user && !request.nextUrl.pathname.includes('callback')) {
+  if (pathname.startsWith('/auth/') && user && !pathname.includes('callback')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

@@ -30,6 +30,24 @@ export async function GET(request: NextRequest) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      // Check if user has completed onboarding
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', user.id)
+          .single();
+
+        if (profile && !profile.onboarding_completed) {
+          const onboardingResponse = NextResponse.redirect(`${origin}/onboarding`);
+          // Copy all cookies from the code exchange response
+          response.cookies.getAll().forEach((cookie) => {
+            onboardingResponse.cookies.set(cookie);
+          });
+          return onboardingResponse;
+        }
+      }
       return response;
     }
   }

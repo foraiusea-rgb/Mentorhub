@@ -4,7 +4,7 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 
-const HIDE_NAV_ROUTES = ['/auth'];
+const HIDE_NAV_ROUTES = ['/auth', '/onboarding'];
 // Routes that handle their own top spacing (hero sections with pt-[72px])
 const SELF_PADDED_ROUTES = ['/'];
 

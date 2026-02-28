@@ -28,8 +28,11 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+  // Protected routes that require auth
+  const protectedPaths = ['/dashboard', '/calendar', '/payments', '/meetings/create', '/ai', '/admin'];
+  const isProtected = protectedPaths.some((p) => request.nextUrl.pathname.startsWith(p));
+
+  if (isProtected && !user) {
     return NextResponse.redirect(new URL('/auth', request.url));
   }
 

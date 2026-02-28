@@ -116,8 +116,8 @@ export default function OnboardingPage() {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 'basics': return form.full_name.trim().length > 0;
-      case 'services': return form.expertise_tags.length > 0 && form.headline.trim().length > 0;
+      case 'basics': return form.full_name.trim().length > 0 && (!isMentor || form.headline.trim().length > 0);
+      case 'services': return form.expertise_tags.length > 0;
       case 'interests': return form.interests.length > 0;
       default: return true;
     }

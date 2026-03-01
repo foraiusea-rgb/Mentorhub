@@ -31,7 +31,22 @@ export default function CreateMeetingPage() {
     setLoading(true);
 
     const { data: meeting, error } = await supabase.from('meetings').insert({
-      ...form, agenda, mentor_id: user.id, is_active: true,
+      title: form.title,
+      description: form.description,
+      meeting_mode: form.meeting_mode,
+      meeting_type: form.meeting_type,
+      location_address: form.location || null,
+      meeting_link: form.meeting_link || null,
+      duration_minutes: form.duration_minutes,
+      max_participants: form.max_participants,
+      price: form.price,
+      currency: form.currency,
+      is_free: form.is_free,
+      tags: form.tags,
+      agenda,
+      mentor_id: user.id,
+      is_active: true,
+      status: 'published',
     }).select().single();
 
     if (error || !meeting) { alert('Error creating meeting'); setLoading(false); return; }

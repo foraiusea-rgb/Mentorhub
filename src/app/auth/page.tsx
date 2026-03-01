@@ -22,41 +22,54 @@ function AuthContent() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
-    }
-    // Fetch profile to check onboarding
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase.from('profiles').select('onboarding_completed').eq('id', user.id).single();
-      if (profile && !profile.onboarding_completed) {
-        router.push('/onboarding');
+    try {
+      // Clear any stale session first
+      await supabase.auth.signOut();
+      
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setError(error.message);
+        setLoading(false);
         return;
       }
+      const userId = data.user?.id;
+      if (userId) {
+        const { data: profile } = await supabase.from('profiles').select('onboarding_completed').eq('id', userId).single();
+        if (profile && !profile.onboarding_completed) {
+          window.location.href = '/onboarding';
+          return;
+        }
+      }
+      window.location.href = '/dashboard';
+    } catch (err) {
+      setError('Login failed. Please try again.');
+      setLoading(false);
     }
-    router.push('/dashboard');
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const { data, error } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { full_name: fullName, role }, emailRedirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) { setError(error.message); setLoading(false); return; }
-    // If user is already confirmed (email confirm disabled), redirect
-    if (data.user && data.session) {
-      router.push('/onboarding');
-      return;
+    try {
+      // Clear any stale session
+      await supabase.auth.signOut();
+      
+      const { data, error } = await supabase.auth.signUp({
+        email, password,
+        options: { data: { full_name: fullName, role }, emailRedirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) { setError(error.message); setLoading(false); return; }
+      if (data.user && data.session) {
+        window.location.href = '/onboarding';
+        return;
+      }
+      setMessage('Check your email for a confirmation link!');
+      setLoading(false);
+    } catch (err) {
+      setError('Signup failed. Please try again.');
+      setLoading(false);
     }
-    // Otherwise show email confirmation message
-    setMessage('Check your email for a confirmation link!');
-    setLoading(false);
   };
 
   const handleOAuth = async (provider: 'google' | 'github') => {

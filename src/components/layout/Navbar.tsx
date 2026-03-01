@@ -89,7 +89,7 @@ export function Navbar() {
                       <Link href="/admin" className="block px-4 py-2 text-sm text-[var(--violet)] hover:bg-[var(--violet-soft)] transition-colors" onClick={() => setProfileMenu(false)}>Admin</Link>
                       <hr className="my-1 border-[var(--ink-05)]" />
                       <button
-                        onClick={() => { signOut(); setProfileMenu(false); }}
+                        onClick={async () => { await signOut(); window.location.href = '/auth'; }}
                         className="block w-full text-left px-4 py-2 text-sm text-[var(--rose)] hover:bg-[var(--rose-soft)] transition-colors"
                       >
                         Sign Out

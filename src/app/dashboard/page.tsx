@@ -146,16 +146,20 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
     const load = async () => {
-      const [meetingsRes, bookingsRes, paymentsRes] = await Promise.all([
-        supabase.from('meetings').select('*, slots:meeting_slots(*)').eq('mentor_id', user.id).order('created_at', { ascending: false }),
-        supabase.from('bookings').select('*, meeting:meetings(*), slot:meeting_slots(*), mentor:profiles!bookings_mentor_id_fkey(full_name, avatar_url), mentee:profiles!bookings_mentee_id_fkey(full_name, avatar_url)')
-          .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`).order('created_at', { ascending: false }).limit(50),
-        supabase.from('payments').select('*')
-          .or(`payer_id.eq.${user.id},mentor_id.eq.${user.id}`).order('created_at', { ascending: false }).limit(100),
-      ]);
-      if (meetingsRes.data) setMeetings(meetingsRes.data as Meeting[]);
-      if (bookingsRes.data) setBookings(bookingsRes.data as Booking[]);
-      if (paymentsRes.data) setPayments(paymentsRes.data as Payment[]);
+      try {
+        const [meetingsRes, bookingsRes, paymentsRes] = await Promise.all([
+          supabase.from('meetings').select('*, slots:meeting_slots(*)').eq('mentor_id', user.id).order('created_at', { ascending: false }),
+          supabase.from('bookings').select('*, meeting:meetings(*), slot:meeting_slots(*), mentor:profiles!bookings_mentor_id_fkey(full_name, avatar_url), mentee:profiles!bookings_mentee_id_fkey(full_name, avatar_url)')
+            .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`).order('created_at', { ascending: false }).limit(50),
+          supabase.from('payments').select('*')
+            .or(`payer_id.eq.${user.id},mentor_id.eq.${user.id}`).order('created_at', { ascending: false }).limit(100),
+        ]);
+        if (meetingsRes.data) setMeetings(meetingsRes.data as Meeting[]);
+        if (bookingsRes.data) setBookings(bookingsRes.data as Booking[]);
+        if (paymentsRes.data) setPayments(paymentsRes.data as Payment[]);
+      } catch (e) {
+        console.error('Dashboard data load error:', e);
+      }
       setLoading(false);
     };
     load();
@@ -170,7 +174,7 @@ export default function DashboardPage() {
     alert(`Link copied: ${url}`);
   };
 
-  if (authLoading) return (
+  if (authLoading || loading) return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
       <div className="animate-pulse space-y-6">
         <div className="h-24 bg-[var(--ink-05)] rounded-[20px]" />
@@ -179,7 +183,18 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-  if (!user || !profile) return null;
+
+  if (!user) {
+    if (typeof window !== 'undefined') window.location.href = '/auth';
+    return null;
+  }
+
+  if (!profile) return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 text-center">
+      <p className="text-[var(--ink-40)]">Could not load your profile.</p>
+      <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-[var(--ink)] text-white rounded-[12px] text-sm font-semibold cursor-pointer">Retry</button>
+    </div>
+  );
 
   const isMentor = profile.role === 'mentor' || profile.role === 'both';
   const isMentee = profile.role === 'mentee' || profile.role === 'both';

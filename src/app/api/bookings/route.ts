@@ -66,46 +66,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Cannot book your own meeting' }, { status: 400 });
   }
 
-  // Book atomically — direct insert with conflict check (book_slot RPC not needed)
-  // Check slot availability first
-  const { data: slot } = await supabase
-    .from('meeting_slots')
-    .select('*')
-    .eq('id', result.data.slot_id)
-    .single();
+  // Book atomically
+  const { data: bookingId, error } = await supabase.rpc('book_slot', {
+    p_slot_id: result.data.slot_id,
+    p_meeting_id: result.data.meeting_id,
+    p_mentee_id: user.id,
+    p_mentor_id: meeting.mentor_id,
+    p_notes: result.data.notes || null,
+  });
 
-  if (!slot) return NextResponse.json({ error: 'Slot not found' }, { status: 404 });
-  if (!slot.is_available || slot.spots_taken >= slot.spots_available) {
-    return NextResponse.json({ error: 'This slot is no longer available' }, { status: 409 });
-  }
-
-  // Create booking
-  const { data: booking, error: bookingError } = await supabase
-    .from('bookings')
-    .insert({
-      slot_id: result.data.slot_id,
-      meeting_id: result.data.meeting_id,
-      mentee_id: user.id,
-      mentor_id: meeting.mentor_id,
-      notes: result.data.notes || null,
-      status: 'confirmed',
-    })
-    .select('id')
-    .single();
-
-  if (bookingError) return NextResponse.json({ error: bookingError.message }, { status: 500 });
-
-  // Update slot availability
-  const newSpotsTaken = (slot.spots_taken || 0) + 1;
-  await supabase
-    .from('meeting_slots')
-    .update({
-      spots_taken: newSpotsTaken,
-      is_available: newSpotsTaken < slot.spots_available,
-    })
-    .eq('id', result.data.slot_id);
-
-  const bookingId = booking.id;
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Notify mentor
   await supabase.from('notifications').insert({
